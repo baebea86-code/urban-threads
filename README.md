@@ -25,7 +25,3 @@ A simple Firebase-powered streetwear e-commerce project built with HTML, CSS and
    - `imageURL`
 8. Apply the rules in `firestore.rules`.
 9. Run the project using a local development server such as VS Code Live Server.
-
-## Important
-
-Do not commit private service-account credentials. The Web Firebase config is normally used client-side, but Firestore Security Rules must protect user data.
