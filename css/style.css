@@ -32,7 +32,8 @@ select {
   font: inherit;
 }
 
-.navbar {
+/* Navbar: use ID selector to match header markup */
+#navbar {
   min-height: 74px;
   padding: 0 5%;
   display: flex;
@@ -40,6 +41,25 @@ select {
   justify-content: space-between;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
+}
+
+#navbar .logo a {
+  font-weight: 900;
+  letter-spacing: -1px;
+  color: inherit;
+  text-decoration: none;
+  font-size: 1.15rem;
+}
+
+#navbar nav ul {
+  display: flex;
+  gap: 1.2rem;
+  list-style: none;
+  align-items: center;
+}
+
+#navbar nav a:hover {
+  text-decoration: underline;
 }
 
 .brand {
@@ -51,7 +71,7 @@ select {
   font-weight: 400;
 }
 
-.nav-links {
+/* .nav-links {
   display: flex;
   align-items: center;
   gap: 1.2rem;
@@ -59,7 +79,7 @@ select {
 
 .nav-links a:hover {
   text-decoration: underline;
-}
+} */
 
 .user-email {
   color: var(--muted);
@@ -69,19 +89,19 @@ select {
   text-overflow: ellipsis;
 }
 
-.nav-button,
+/* .nav-button,
 .text-button {
   border: 0;
   background: none;
   cursor: pointer;
-}
+} */
 
-.nav-button {
+/* .nav-button {
   background: var(--accent);
   color: white;
   padding: .65rem 1rem;
   border-radius: 999px;
-}
+} */
 
 .hero {
   min-height: 76vh;
@@ -106,13 +126,13 @@ select {
   margin: .5rem 0 1.5rem;
 }
 
-.hero p:not(.eyebrow) {
+/* .hero p:not(.eyebrow) {
   max-width: 500px;
   font-size: 1.15rem;
   margin-bottom: 2rem;
-}
+} */
 
-.eyebrow {
+/* .eyebrow {
   font-size: .75rem;
   letter-spacing: .18em;
   font-weight: 800;
@@ -121,7 +141,7 @@ select {
 
 .hero .eyebrow {
   color: white;
-}
+} */
 
 .btn {
   display: inline-block;
@@ -398,6 +418,14 @@ select {
   margin-bottom: 1rem;
 }
 
+/* Footer styles */
+footer {
+  background: var(--surface);
+  padding: 2rem 5%;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
 .checkout-note {
   color: var(--muted);
   font-size: .8rem;
@@ -416,9 +444,16 @@ select {
 footer {
   background: #151515;
   color: white;
+  padding: 3rem 5%;
+  text-align: center;
 }
 
-.footer-inner {
+/* footer {
+  background: #151515;
+  color: white;
+} */
+
+/* .footer-inner {
   padding: 3rem 5%;
   text-align: center;
 }
@@ -430,7 +465,7 @@ footer {
 
 footer small {
   color: #777;
-}
+} */
 
 @media (max-width: 900px) {
   .product-grid {
