@@ -1,105 +1,343 @@
 import { db } from "../firebase.js";
+
 import {
   collection,
-  getDocs,
-  addDoc,
-  doc,
-  setDoc,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
-import { auth } from "../firebase.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+  getDocs
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
-const productGrid = document.querySelector("#productGrid");
-const searchInput = document.querySelector("#searchInput");
-const categoryFilter = document.querySelector("#categoryFilter");
-const shopMessage = document.querySelector("#shopMessage");
+
+const productGrid =
+  document.querySelector("#productGrid");
+
+const searchInput =
+  document.querySelector("#searchInput");
+
+const categorySelect =
+  document.querySelector("#categorySelect");
+
 
 let products = [];
-let currentUser = null;
 
-onAuthStateChanged(auth, user => {
-  currentUser = user;
-});
+let filteredProducts = [];
+
+
+/* =========================
+   LOAD PRODUCTS
+========================= */
 
 async function loadProducts() {
+
   try {
-    shopMessage.textContent = "Loading products...";
-    const snapshot = await getDocs(collection(db, "products"));
-    products = snapshot.docs.map(item => ({ id: item.id, ...item.data() }));
+
+    productGrid.innerHTML =
+      `<p class="message">Loading products...</p>`;
+
+
+    const productsSnapshot =
+      await getDocs(
+        collection(db, "products")
+      );
+
+
+    products =
+      productsSnapshot.docs.map((doc) => ({
+
+        id: doc.id,
+
+        ...doc.data()
+
+      }));
+
+
+    filteredProducts = [...products];
+
+
     renderProducts();
+
   } catch (error) {
-    console.error(error);
-    shopMessage.textContent = "Could not load products. Check your Firebase setup.";
+
+    console.error(
+      "Error loading products:",
+      error
+    );
+
+
+    productGrid.innerHTML = `
+      <p class="message">
+        Unable to load products. Please try again.
+      </p>
+    `;
+
   }
+
 }
+
+
+/* =========================
+   RENDER PRODUCTS
+========================= */
 
 function renderProducts() {
-  const searchTerm = searchInput.value.toLowerCase().trim();
-  const category = categoryFilter.value;
 
-  const filtered = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm);
-    const matchesCategory = category === "all" || product.category === category;
-    return matchesSearch && matchesCategory;
-  });
+  if (filteredProducts.length === 0) {
 
-  shopMessage.textContent = filtered.length ? "" : "No products found.";
+    productGrid.innerHTML = `
+      <div class="empty-state">
 
-  productGrid.innerHTML = filtered.map(product => `
-    <article class="product-card">
-      <div class="product-image-wrap">
-        <img src="${product.imageURL}" alt="${product.name}" loading="lazy">
+        <h2>
+          No products found.
+        </h2>
+
+        <p>
+          Try another search or category.
+        </p>
+
       </div>
-      <div class="product-info">
-        <p class="product-category">${product.category}</p>
-        <h3>${product.name}</h3>
-        <p class="product-description">${product.description}</p>
-        <div class="product-bottom">
-          <strong>R${Number(product.price).toFixed(2)}</strong>
-          <button class="add-btn" data-id="${product.id}">Add to cart</button>
-        </div>
-      </div>
-    </article>
-  `).join("");
+    `;
 
-  document.querySelectorAll(".add-btn").forEach(button => {
-    button.addEventListener("click", () => addToCart(button.dataset.id));
-  });
-}
-
-async function addToCart(productId) {
-  if (!currentUser) {
-    window.location.href = "login.html";
     return;
   }
 
-  const product = products.find(item => item.id === productId);
-  if (!product) return;
 
-  const cartRef = doc(db, "users", currentUser.uid, "cart", productId);
-  const existing = await getDoc(cartRef);
+  productGrid.innerHTML =
+    filteredProducts
+      .map((product) => {
 
-  if (existing.exists()) {
-    await setDoc(cartRef, {
-      ...product,
-      quantity: existing.data().quantity + 1
-    });
-  } else {
-    await setDoc(cartRef, {
-      ...product,
-      quantity: 1
-    });
-  }
+        return `
 
-  alert(`${product.name} added to cart.`);
+          <article class="product-card">
+
+            <div class="product-image-wrap">
+
+              <img
+                src="${product.image}"
+                alt="${product.name}"
+              >
+
+            </div>
+
+
+            <div class="product-info">
+
+              <span class="product-category">
+                ${product.category}
+              </span>
+
+
+              <h3>
+                ${product.name}
+              </h3>
+
+
+              <p class="product-description">
+                ${product.description}
+              </p>
+
+
+              <div class="product-bottom">
+
+                <strong>
+                  R${Number(product.price).toFixed(2)}
+                </strong>
+
+
+                <button
+                  class="add-btn"
+                  data-id="${product.id}"
+                >
+                  Add to Cart
+                </button>
+
+              </div>
+
+            </div>
+
+          </article>
+
+        `;
+
+      })
+      .join("");
+
 }
 
-searchInput.addEventListener("input", renderProducts);
-categoryFilter.addEventListener("change", renderProducts);
 
-const params = new URLSearchParams(window.location.search);
-const categoryFromURL = params.get("category");
-if (categoryFromURL) categoryFilter.value = categoryFromURL;
+/* =========================
+   SEARCH
+========================= */
+
+searchInput.addEventListener(
+  "input",
+  () => {
+
+    const searchTerm =
+      searchInput.value
+        .toLowerCase()
+        .trim();
+
+
+    filterProducts(
+      searchTerm,
+      categorySelect.value
+    );
+
+  }
+);
+
+
+/* =========================
+   CATEGORY FILTER
+========================= */
+
+categorySelect.addEventListener(
+  "change",
+  () => {
+
+    filterProducts(
+      searchInput.value
+        .toLowerCase()
+        .trim(),
+
+      categorySelect.value
+
+    );
+
+  }
+);
+
+
+/* =========================
+   FILTER PRODUCTS
+========================= */
+
+function filterProducts(
+  searchTerm,
+  category
+) {
+
+  filteredProducts =
+    products.filter((product) => {
+
+      const matchesSearch =
+        product.name
+          .toLowerCase()
+          .includes(searchTerm);
+
+
+      const matchesCategory =
+        category === "all" ||
+        product.category === category;
+
+
+      return (
+        matchesSearch &&
+        matchesCategory
+      );
+
+    });
+
+
+  renderProducts();
+
+}
+
+
+/* =========================
+   ADD TO CART
+========================= */
+
+productGrid.addEventListener(
+  "click",
+  (event) => {
+
+    const button =
+      event.target.closest(".add-btn");
+
+
+    if (!button) {
+      return;
+    }
+
+
+    const productId =
+      button.dataset.id;
+
+
+    const product =
+      products.find(
+        (item) =>
+          item.id === productId
+      );
+
+
+    if (!product) {
+      return;
+    }
+
+
+    addToCart(product);
+
+  }
+);
+
+
+/* =========================
+   ADD PRODUCT TO CART
+========================= */
+
+function addToCart(product) {
+
+  let cart =
+    JSON.parse(
+      localStorage.getItem("cart")
+    ) || [];
+
+
+  const existingProduct =
+    cart.find(
+      (item) =>
+        item.id === product.id
+    );
+
+
+  if (existingProduct) {
+
+    existingProduct.quantity += 1;
+
+  } else {
+
+    cart.push({
+
+      id: product.id,
+
+      name: product.name,
+
+      price: product.price,
+
+      image: product.image,
+
+      quantity: 1
+
+    });
+
+  }
+
+
+  localStorage.setItem(
+    "cart",
+    JSON.stringify(cart)
+  );
+
+
+  alert(
+    `${product.name} added to your cart!`
+  );
+
+}
+
+
+/* =========================
+   START
+========================= */
 
 loadProducts();

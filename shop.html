@@ -1,51 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shop | Urban Threads</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-  <header id="navbar">
-    <div class="logo">
-      <a href="index.html">Urban Threads</a>
-    </div>
-    <nav>
-     <ul>
-        <li><a href="shop.html">Shop</a></li>
-        <li><a href="./cart.html">Cart</a></li>
-        <li><a href="./login.html">Login</a></li>
-      </ul>
-    </nav>
-  </header>
+<section class="section">
 
-  <main class="section">
-    <div class="section-heading">
-      <p class="eyebrow">URBAN THREADS</p>
-      <h1>Shop all products</h1>
-      <p>Browse the latest pieces from our collection.</p>
-    </div>
+  <div class="section-heading">
 
-    <div class="shop-controls">
-      <input id="searchInput" type="search" placeholder="Search products...">
-      <select id="categoryFilter">
-        <option value="all">All categories</option>
-        <option value="Hoodies">Hoodies</option>
-        <option value="T-shirts">T-Shirts</option>
-        <option value="Sneakers">Sneakers</option>
-        <option value="Accessories">Accessories</option>
-      </select>
-    </div>
+    <p class="eyebrow">
+      URBAN THREADS
+    </p>
 
-    <p id="shopMessage" class="message"></p>
-    <div id="productGrid" class="product-grid"></div>
-  </main>
+    <h1>
+      Shop the collection.
+    </h1>
 
-  <footer>
-    <p>&copy; 2023 Urban Threads. All rights reserved.</p>
-  </footer>
-  
-  <script type="module" src="js/shop.js"></script>
-</body>
-</html>
+    <p>
+      Find your next favourite fit.
+    </p>
+
+  </div>
+
+
+  <div class="shop-controls">
+
+    <input
+      id="searchInput"
+      type="search"
+      placeholder="Search products..."
+    >
+
+
+    <select id="categorySelect">
+
+      <option value="all">
+        All categories
+      </option>
+
+      <option value="Hoodies">
+        Hoodies
+      </option>
+
+      <option value="T-shirts">
+        T-Shirts
+      </option>
+
+      <option value="Sneakers">
+        Sneakers
+      </option>
+
+      <option value="Accessories">
+        Accessories
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <div
+    id="productGrid"
+    class="product-grid"
+  ></div>
+
+  <script
+  type="module"
+  src="js/app.js"
+></script>
+
+<script
+  type="module"
+  src="js/shop.js"
+></script>
+
+</section>

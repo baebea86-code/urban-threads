@@ -1,63 +1,161 @@
 import { auth } from "../firebase.js";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
-const form = document.querySelector("#authForm");
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
+
+const authForm = document.querySelector("#authForm");
 const emailInput = document.querySelector("#email");
 const passwordInput = document.querySelector("#password");
-const message = document.querySelector("#authMessage");
-const submitButton = document.querySelector("#authSubmit");
-const toggleButton = document.querySelector("#toggleAuth");
-const title = document.querySelector("#authTitle");
-const subtitle = document.querySelector("#authSubtitle");
 
-let isSignup = false;
+const authTitle = document.querySelector("#authTitle");
+const authSubtitle = document.querySelector("#authSubtitle");
+const authSubmit = document.querySelector("#authSubmit");
 
-toggleButton.addEventListener("click", () => {
-  isSignup = !isSignup;
+const authMessage = document.querySelector("#authMessage");
+const toggleAuth = document.querySelector("#toggleAuth");
 
-  title.textContent = isSignup ? "Create your account." : "Welcome back.";
-  subtitle.textContent = isSignup
-    ? "Join Urban Threads and start shopping."
-    : "Log in to continue shopping.";
-  submitButton.textContent = isSignup ? "Sign up" : "Log in";
-  toggleButton.textContent = isSignup
-    ? "Already have an account? Log in"
-    : "Don't have an account? Sign up";
-  message.textContent = "";
+
+let isLoginMode = true;
+
+
+/* =========================
+   TOGGLE LOGIN / SIGN UP
+========================= */
+
+toggleAuth.addEventListener("click", () => {
+
+  isLoginMode = !isLoginMode;
+
+  authMessage.textContent = "";
+
+  if (isLoginMode) {
+
+    authTitle.textContent = "Welcome back.";
+
+    authSubtitle.textContent =
+      "Log in to continue shopping.";
+
+    authSubmit.textContent = "Log in";
+
+    toggleAuth.textContent =
+      "Don't have an account? Sign up";
+
+  } else {
+
+    authTitle.textContent =
+      "Create your account.";
+
+    authSubtitle.textContent =
+      "Sign up to start shopping.";
+
+    authSubmit.textContent =
+      "Sign up";
+
+    toggleAuth.textContent =
+      "Already have an account? Log in";
+
+  }
+
 });
 
-form.addEventListener("submit", async event => {
+
+/* =========================
+   AUTH FORM
+========================= */
+
+authForm.addEventListener("submit", async (event) => {
+
   event.preventDefault();
-  message.textContent = "Please wait...";
+
+  const email = emailInput.value.trim();
+
+  const password = passwordInput.value;
+
+
+  authMessage.textContent = "Please wait...";
+
 
   try {
-    if (isSignup) {
-      await createUserWithEmailAndPassword(
-        auth,
-        emailInput.value,
-        passwordInput.value
-      );
-    } else {
+
+    if (isLoginMode) {
+
       await signInWithEmailAndPassword(
         auth,
-        emailInput.value,
-        passwordInput.value
+        email,
+        password
       );
+
+      authMessage.textContent =
+        "Login successful!";
+
+    } else {
+
+      await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      authMessage.textContent =
+        "Account created successfully!";
+
     }
 
-    window.location.href = "shop.html";
+
+    setTimeout(() => {
+
+      window.location.href = "index.html";
+
+    }, 1000);
+
+
   } catch (error) {
-    message.textContent = error.message;
+
+    console.error(error);
+
+    authMessage.textContent =
+      getAuthErrorMessage(error.code);
+
   }
+
 });
 
-onAuthStateChanged(auth, user => {
-  if (user) {
-    // Prevent authenticated users from unnecessarily staying on the auth page.
-    // Comment this out if you want users to remain here after login.
+
+/* =========================
+   FIREBASE ERROR MESSAGES
+========================= */
+
+function getAuthErrorMessage(errorCode) {
+
+  switch (errorCode) {
+
+    case "auth/invalid-email":
+      return "Please enter a valid email address.";
+
+    case "auth/user-not-found":
+      return "No account was found with this email.";
+
+    case "auth/wrong-password":
+      return "Incorrect password.";
+
+    case "auth/invalid-credential":
+      return "Incorrect email or password.";
+
+    case "auth/email-already-in-use":
+      return "An account already exists with this email.";
+
+    case "auth/weak-password":
+      return "Password must be at least 6 characters.";
+
+    case "auth/too-many-requests":
+      return "Too many attempts. Please try again later.";
+
+    default:
+      return "Something went wrong. Please try again.";
+
   }
-});
+
+}

@@ -32,7 +32,10 @@ select {
   font: inherit;
 }
 
-/* Navbar: use ID selector to match header markup */
+/* =========================
+   NAVBAR
+========================= */
+
 #navbar {
   min-height: 74px;
   padding: 0 5%;
@@ -43,23 +46,11 @@ select {
   border-bottom: 1px solid var(--border);
 }
 
-#navbar .logo a {
-  font-weight: 900;
-  letter-spacing: -1px;
-  color: inherit;
-  text-decoration: none;
-  font-size: 1.15rem;
-}
-
-#navbar nav ul {
+.navbar {
+  width: 100%;
   display: flex;
-  gap: 1.2rem;
-  list-style: none;
   align-items: center;
-}
-
-#navbar nav a:hover {
-  text-decoration: underline;
+  justify-content: space-between;
 }
 
 .brand {
@@ -71,7 +62,7 @@ select {
   font-weight: 400;
 }
 
-/* .nav-links {
+.nav-links {
   display: flex;
   align-items: center;
   gap: 1.2rem;
@@ -79,29 +70,33 @@ select {
 
 .nav-links a:hover {
   text-decoration: underline;
-} */
+}
 
 .user-email {
   color: var(--muted);
-  font-size: .9rem;
+  font-size: 0.9rem;
   max-width: 220px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* .nav-button,
+.nav-button,
 .text-button {
   border: 0;
   background: none;
   cursor: pointer;
-} */
+}
 
-/* .nav-button {
+.nav-button {
   background: var(--accent);
   color: white;
-  padding: .65rem 1rem;
+  padding: 0.65rem 1rem;
   border-radius: 999px;
-} */
+}
+
+/* =========================
+   HERO
+========================= */
 
 .hero {
   min-height: 76vh;
@@ -109,7 +104,7 @@ select {
   align-items: center;
   padding: 7rem 8%;
   background:
-    linear-gradient(rgba(0,0,0,.42), rgba(0,0,0,.42)),
+    linear-gradient(rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.42)),
     url("https://images.unsplash.com/photo-1523398002811-999ca8dec234?auto=format&fit=crop&w=1800&q=80")
     center/cover;
   color: white;
@@ -121,34 +116,34 @@ select {
 
 .hero h1 {
   font-size: clamp(3rem, 7vw, 6.5rem);
-  line-height: .95;
+  line-height: 0.95;
   letter-spacing: -5px;
-  margin: .5rem 0 1.5rem;
+  margin: 0.5rem 0 1.5rem;
 }
 
-/* .hero p:not(.eyebrow) {
+.hero p:not(.eyebrow) {
   max-width: 500px;
   font-size: 1.15rem;
   margin-bottom: 2rem;
-} */
+}
 
-/* .eyebrow {
-  font-size: .75rem;
-  letter-spacing: .18em;
+.eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
   font-weight: 800;
   color: var(--muted);
 }
 
 .hero .eyebrow {
   color: white;
-} */
+}
 
 .btn {
   display: inline-block;
   border: 0;
   background: var(--accent);
   color: white;
-  padding: .9rem 1.3rem;
+  padding: 0.9rem 1.3rem;
   border-radius: 999px;
   cursor: pointer;
   font-weight: 700;
@@ -157,6 +152,10 @@ select {
 .btn:hover {
   transform: translateY(-1px);
 }
+
+/* =========================
+   GENERAL SECTIONS
+========================= */
 
 .section {
   max-width: 1250px;
@@ -172,8 +171,12 @@ select {
 .section-heading h2 {
   font-size: clamp(2rem, 4vw, 3.5rem);
   letter-spacing: -2px;
-  margin: .2rem 0 .5rem;
+  margin: 0.2rem 0 0.5rem;
 }
+
+/* =========================
+   CATEGORY GRID
+========================= */
 
 .category-grid {
   display: grid;
@@ -191,12 +194,16 @@ select {
   border-radius: var(--radius);
   font-size: 1.4rem;
   font-weight: 800;
-  transition: .2s;
+  transition: 0.2s;
 }
 
 .category-grid a:hover {
   transform: translateY(-5px);
 }
+
+/* =========================
+   SHOP CONTROLS
+========================= */
 
 .shop-controls {
   display: flex;
@@ -210,7 +217,7 @@ select {
   width: 100%;
   border: 1px solid var(--border);
   background: var(--surface);
-  padding: .9rem 1rem;
+  padding: 0.9rem 1rem;
   border-radius: 10px;
   outline: none;
 }
@@ -222,6 +229,10 @@ select {
 .shop-controls select {
   max-width: 220px;
 }
+
+/* =========================
+   PRODUCTS
+========================= */
 
 .product-grid {
   display: grid;
@@ -254,18 +265,18 @@ select {
 .product-category {
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: .1em;
-  font-size: .7rem;
+  letter-spacing: 0.1em;
+  font-size: 0.7rem;
   font-weight: 800;
 }
 
 .product-info h3 {
-  margin: .25rem 0;
+  margin: 0.25rem 0;
 }
 
 .product-description {
   color: var(--muted);
-  font-size: .9rem;
+  font-size: 0.9rem;
   min-height: 45px;
 }
 
@@ -274,7 +285,7 @@ select {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: .5rem;
+  gap: 0.5rem;
 }
 
 .add-btn,
@@ -287,9 +298,13 @@ select {
 .add-btn {
   background: var(--accent);
   color: white;
-  padding: .6rem .8rem;
+  padding: 0.6rem 0.8rem;
   border-radius: 999px;
 }
+
+/* =========================
+   AUTH
+========================= */
 
 .auth-page {
   min-height: calc(100vh - 74px);
@@ -309,7 +324,7 @@ select {
 .auth-card h1 {
   font-size: 2.4rem;
   letter-spacing: -1px;
-  margin: .4rem 0;
+  margin: 0.4rem 0;
 }
 
 .auth-card form {
@@ -320,7 +335,7 @@ select {
 
 .auth-card label {
   display: grid;
-  gap: .4rem;
+  gap: 0.4rem;
   font-weight: 700;
 }
 
@@ -339,6 +354,10 @@ select {
   margin: 1rem 0;
   color: var(--muted);
 }
+
+/* =========================
+   CART
+========================= */
 
 .cart-layout {
   display: grid;
@@ -378,8 +397,8 @@ select {
 .quantity-controls {
   display: flex;
   align-items: center;
-  gap: .7rem;
-  margin-top: .8rem;
+  gap: 0.7rem;
+  margin-top: 0.8rem;
 }
 
 .quantity-btn {
@@ -392,7 +411,7 @@ select {
   background: none;
   text-decoration: underline;
   color: var(--muted);
-  margin-left: .5rem;
+  margin-left: 0.5rem;
 }
 
 .summary-card {
@@ -408,7 +427,7 @@ select {
 .summary-row {
   display: flex;
   justify-content: space-between;
-  padding: .8rem 0;
+  padding: 0.8rem 0;
   border-bottom: 1px solid var(--border);
 }
 
@@ -418,19 +437,15 @@ select {
   margin-bottom: 1rem;
 }
 
-/* Footer styles */
-footer {
-  background: var(--surface);
-  padding: 2rem 5%;
-  border-top: 1px solid var(--border);
-  text-align: center;
-}
-
 .checkout-note {
   color: var(--muted);
-  font-size: .8rem;
+  font-size: 0.8rem;
   margin-top: 1rem;
 }
+
+/* =========================
+   EMPTY STATES
+========================= */
 
 .empty-state {
   padding: 3rem;
@@ -441,6 +456,10 @@ footer {
   margin-bottom: 1rem;
 }
 
+/* =========================
+   FOOTER
+========================= */
+
 footer {
   background: #151515;
   color: white;
@@ -448,24 +467,22 @@ footer {
   text-align: center;
 }
 
-/* footer {
-  background: #151515;
-  color: white;
-} */
-
-/* .footer-inner {
-  padding: 3rem 5%;
-  text-align: center;
+.footer-inner {
+  padding: 0;
 }
 
 .footer-inner p {
   color: #aaa;
-  margin: .4rem 0 1rem;
+  margin: 0.4rem 0 1rem;
 }
 
 footer small {
   color: #777;
-} */
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
 
 @media (max-width: 900px) {
   .product-grid {
@@ -488,7 +505,7 @@ footer small {
   }
 
   .nav-links {
-    gap: .7rem;
+    gap: 0.7rem;
     flex-wrap: wrap;
     justify-content: flex-end;
   }
