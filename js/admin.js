@@ -18,7 +18,7 @@ import {
    ADMIN ACCOUNT
 ========================= */
 
-const ADMIN_EMAIL = "YOUR_EMAIL@example.com";
+const ADMIN_EMAIL = "masengobea86@gmail.com";
 
 
 /* =========================
