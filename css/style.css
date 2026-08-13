@@ -550,3 +550,104 @@ footer small {
     height: 100px;
   }
 }
+
+/* =========================
+   ADMIN
+========================= */
+
+.admin-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.admin-stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.admin-stat h2 {
+  font-size: 2rem;
+  margin-top: .4rem;
+}
+
+
+/* =========================
+   ORDER STATUS
+========================= */
+
+.order-status {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: .5rem .7rem;
+  border-radius: 8px;
+}
+
+
+/* =========================
+   CHECKOUT
+========================= */
+
+.checkout-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 2rem;
+  align-items: start;
+}
+
+.checkout-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.checkout-item p {
+  color: var(--muted);
+  font-size: .9rem;
+  margin-top: .2rem;
+}
+
+
+/* =========================
+   ORDERS
+========================= */
+
+.order-status-badge {
+  display: inline-block;
+  padding: .35rem .7rem;
+  border-radius: 999px;
+  background: var(--bg);
+  font-size: .8rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 900px) {
+
+  .checkout-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+}
+
+
+@media (max-width: 650px) {
+
+  .admin-stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+}

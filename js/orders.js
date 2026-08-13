@@ -6,239 +6,175 @@ import {
 
 import {
   collection,
+  getDocs,
   query,
-  where,
-  getDocs
+  where
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
 
-const ordersContainer =
-  document.querySelector("#ordersContainer");
+const ordersList =
+  document.querySelector("#ordersList");
 
 
-/* =========================
-   CHECK USER
-========================= */
+onAuthStateChanged(
+  auth,
+  async (user) => {
 
-onAuthStateChanged(auth, async (user) => {
+    if (!user) {
 
-  if (!user) {
+      window.location.href =
+        "login.html";
 
-    window.location.href =
-      "login.html";
+      return;
 
-    return;
-  }
-
-
-  await loadOrders(user.uid);
-
-});
+    }
 
 
-/* =========================
-   LOAD ORDERS
-========================= */
+    try {
 
-async function loadOrders(userId) {
+      const ordersQuery =
+        query(
+          collection(db, "orders"),
+          where(
+            "userId",
+            "==",
+            user.uid
+          )
+        );
 
-  try {
 
-    const ordersRef =
-      collection(db, "orders");
+      const snapshot =
+        await getDocs(
+          ordersQuery
+        );
 
 
-    const ordersQuery =
-      query(
-        ordersRef,
-        where("userId", "==", userId)
+      if (snapshot.empty) {
+
+        ordersList.innerHTML = `
+
+          <div class="empty-state">
+
+            <h2>
+              No orders yet.
+            </h2>
+
+            <p>
+              Start shopping to see your orders here.
+            </p>
+
+            <br>
+
+            <a
+              href="shop.html"
+              class="btn"
+            >
+              Shop now
+            </a>
+
+          </div>
+
+        `;
+
+        return;
+
+      }
+
+
+      ordersList.innerHTML =
+        snapshot.docs
+          .map((orderDoc) => {
+
+            const order =
+              orderDoc.data();
+
+
+            return `
+
+              <article class="summary-card">
+
+                <div class="summary-row">
+
+                  <strong>
+                    Order
+                  </strong>
+
+                  <span>
+                    ${orderDoc.id}
+                  </span>
+
+                </div>
+
+
+                <div class="summary-row">
+
+                  <strong>
+                    Status
+                  </strong>
+
+                  <strong>
+                    ${order.status || "pending"}
+                  </strong>
+
+                </div>
+
+
+                <div class="summary-row">
+
+                  <strong>
+                    Items
+                  </strong>
+
+                  <span>
+                    ${order.items?.length || 0}
+                  </span>
+
+                </div>
+
+
+                <div class="summary-row total">
+
+                  <strong>
+                    Total
+                  </strong>
+
+                  <strong>
+                    R${Number(
+                      order.total || 0
+                    ).toFixed(2)}
+                  </strong>
+
+                </div>
+
+              </article>
+
+            `;
+
+          })
+          .join("");
+
+
+    } catch (error) {
+
+      console.error(
+        "Orders error:",
+        error
       );
 
 
-    const snapshot =
-      await getDocs(ordersQuery);
-
-
-    if (snapshot.empty) {
-
-      ordersContainer.innerHTML = `
+      ordersList.innerHTML = `
 
         <div class="empty-state">
 
           <h2>
-            No orders yet.
+            Unable to load orders.
           </h2>
-
-          <p>
-            Your orders will appear here after you make a purchase.
-          </p>
-
-          <br>
-
-          <a
-            href="shop.html"
-            class="btn"
-          >
-            Start Shopping
-          </a>
 
         </div>
 
       `;
 
-      return;
     }
 
-
-    const orders =
-      snapshot.docs.map((doc) => ({
-
-        id: doc.id,
-
-        ...doc.data()
-
-      }));
-
-
-    renderOrders(orders);
-
-
-  } catch (error) {
-
-    console.error(
-      "Error loading orders:",
-      error
-    );
-
-
-    ordersContainer.innerHTML = `
-
-      <div class="empty-state">
-
-        <h2>
-          Unable to load orders.
-        </h2>
-
-        <p>
-          Please try again later.
-        </p>
-
-      </div>
-
-    `;
-
   }
-
-}
-
-
-/* =========================
-   RENDER ORDERS
-========================= */
-
-function renderOrders(orders) {
-
-  ordersContainer.innerHTML =
-    orders
-      .map((order) => {
-
-        const date =
-          order.createdAt?.toDate
-            ? order.createdAt.toDate().toLocaleDateString()
-            : "Date unavailable";
-
-
-        const items =
-          order.items
-            .map((item) => `
-
-              <div class="order-product">
-
-                <span>
-                  ${item.name}
-                </span>
-
-                <span>
-                  × ${item.quantity}
-                </span>
-
-              </div>
-
-            `)
-            .join("");
-
-
-        return `
-
-          <article class="summary-card">
-
-            <div class="summary-row">
-
-              <strong>
-                Order
-              </strong>
-
-              <span>
-                ${order.id}
-              </span>
-
-            </div>
-
-
-            <div class="summary-row">
-
-              <span>
-                Date
-              </span>
-
-              <span>
-                ${date}
-              </span>
-
-            </div>
-
-
-            <div class="summary-row">
-
-              <span>
-                Status
-              </span>
-
-              <strong>
-                ${order.status}
-              </strong>
-
-            </div>
-
-
-            <div>
-
-              <h3>
-                Items
-              </h3>
-
-              ${items}
-
-            </div>
-
-
-            <div class="summary-row total">
-
-              <span>
-                Total
-              </span>
-
-              <strong>
-                R${Number(order.total).toFixed(2)}
-              </strong>
-
-            </div>
-
-          </article>
-
-        `;
-
-      })
-      .join("");
-
-}
+);

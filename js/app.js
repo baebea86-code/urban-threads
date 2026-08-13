@@ -6,8 +6,15 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 
 
-const navbar = document.querySelector("#navbar");
-const footer = document.querySelector("footer");
+/* =========================
+   ELEMENTS
+========================= */
+
+const navbar =
+  document.querySelector("#navbar");
+
+const footer =
+  document.querySelector("footer");
 
 
 /* =========================
@@ -15,6 +22,11 @@ const footer = document.querySelector("footer");
 ========================= */
 
 function renderNavbar(user) {
+
+  if (!navbar) {
+    return;
+  }
+
 
   navbar.innerHTML = `
 
@@ -34,7 +46,6 @@ function renderNavbar(user) {
           Shop
         </a>
 
-
         <a href="cart.html">
           Cart
         </a>
@@ -43,30 +54,33 @@ function renderNavbar(user) {
         ${
           user
             ? `
-                <a href="orders.html">
-                  My Orders
-                </a>
 
-                <span class="user-email">
-                  ${user.email}
-                </span>
+              <a href="orders.html">
+                Orders
+              </a>
 
-                <button
-                  id="logoutBtn"
-                  class="nav-button"
-                >
-                  Log out
-                </button>
-              `
+              <span class="user-email">
+                ${user.email}
+              </span>
 
+              <button
+                id="logoutBtn"
+                class="nav-button"
+              >
+                Log out
+              </button>
+
+            `
             : `
-                <a
-                  href="login.html"
-                  class="nav-button"
-                >
-                  Log in
-                </a>
-              `
+
+              <a
+                href="login.html"
+                class="nav-button"
+              >
+                Log in
+              </a>
+
+            `
         }
 
       </div>
@@ -80,9 +94,13 @@ function renderNavbar(user) {
      LOGOUT
   ========================= */
 
-  document
-    .querySelector("#logoutBtn")
-    ?.addEventListener(
+  const logoutBtn =
+    document.querySelector("#logoutBtn");
+
+
+  if (logoutBtn) {
+
+    logoutBtn.addEventListener(
       "click",
       async () => {
 
@@ -104,6 +122,8 @@ function renderNavbar(user) {
 
       }
     );
+
+  }
 
 }
 
@@ -143,5 +163,9 @@ if (footer) {
 
 onAuthStateChanged(
   auth,
-  renderNavbar
+  (user) => {
+
+    renderNavbar(user);
+
+  }
 );

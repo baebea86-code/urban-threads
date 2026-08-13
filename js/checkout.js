@@ -14,6 +14,9 @@ import {
 const checkoutForm =
   document.querySelector("#checkoutForm");
 
+const checkoutItems =
+  document.querySelector("#checkoutItems");
+
 const checkoutTotal =
   document.querySelector("#checkoutTotal");
 
@@ -21,76 +24,145 @@ const checkoutMessage =
   document.querySelector("#checkoutMessage");
 
 
-let cart =
-  JSON.parse(localStorage.getItem("cart")) || [];
+let currentUser = null;
 
 
 /* =========================
-   CHECK USER
+   GET CART
 ========================= */
 
-onAuthStateChanged(auth, (user) => {
+function getCart() {
 
-  if (!user) {
+  return JSON.parse(
+    localStorage.getItem("urbanThreadsCart")
+  ) || [];
 
-    alert("Please log in to checkout.");
+}
 
-    window.location.href = "login.html";
 
-    return;
-  }
+/* =========================
+   RENDER SUMMARY
+========================= */
+
+function renderCheckout() {
+
+  const cart =
+    getCart();
 
 
   if (cart.length === 0) {
 
-    alert("Your cart is empty.");
+    checkoutItems.innerHTML = `
 
-    window.location.href = "shop.html";
+      <div class="empty-state">
+
+        <h2>
+          Your cart is empty.
+        </h2>
+
+        <a
+          href="shop.html"
+          class="btn"
+        >
+          Shop now
+        </a>
+
+      </div>
+
+    `;
+
+    checkoutTotal.textContent =
+      "R0.00";
+
+    checkoutForm.style.display =
+      "none";
 
     return;
+
   }
 
 
-  displayTotal();
-
-});
+  let total = 0;
 
 
-/* =========================
-   DISPLAY TOTAL
-========================= */
+  checkoutItems.innerHTML =
+    cart
+      .map((item) => {
 
-function displayTotal() {
-
-  const subtotal =
-    cart.reduce(
-      (total, item) => {
-
-        return (
-          total +
+        const itemTotal =
           Number(item.price) *
-          item.quantity
-        );
-
-      },
-      0
-    );
+          Number(item.quantity);
 
 
-  const shipping =
-    subtotal > 0
-      ? 60
-      : 0;
+        total += itemTotal;
 
 
-  const total =
-    subtotal + shipping;
+        return `
+
+          <div class="checkout-item">
+
+            <div>
+
+              <strong>
+                ${item.name}
+              </strong>
+
+              <p>
+                ${item.quantity} ×
+                R${Number(item.price).toFixed(2)}
+              </p>
+
+            </div>
+
+            <strong>
+              R${itemTotal.toFixed(2)}
+            </strong>
+
+          </div>
+
+        `;
+
+      })
+      .join("");
 
 
   checkoutTotal.textContent =
     `R${total.toFixed(2)}`;
 
 }
+
+
+/* =========================
+   AUTH
+========================= */
+
+onAuthStateChanged(
+  auth,
+  (user) => {
+
+    if (!user) {
+
+      window.location.href =
+        "login.html";
+
+      return;
+
+    }
+
+
+    currentUser = user;
+
+
+    document.querySelector(
+      "#customerEmail"
+    ).value =
+      user.email;
+
+
+    renderCheckout();
+
+  }
+);
 
 
 /* =========================
@@ -104,17 +176,8 @@ checkoutForm.addEventListener(
     event.preventDefault();
 
 
-    const user =
-      auth.currentUser;
-
-
-    if (!user) {
-
-      checkoutMessage.textContent =
-        "Please log in before placing your order.";
-
-      return;
-    }
+    const cart =
+      getCart();
 
 
     if (cart.length === 0) {
@@ -123,126 +186,48 @@ checkoutForm.addEventListener(
         "Your cart is empty.";
 
       return;
+
     }
 
 
-    const fullName =
-      document
-        .querySelector("#fullName")
-        .value
-        .trim();
+    let total = 0;
 
 
-    const address =
-      document
-        .querySelector("#address")
-        .value
-        .trim();
+    cart.forEach((item) => {
+
+      total +=
+        Number(item.price) *
+        Number(item.quantity);
+
+    });
 
 
-    const city =
-      document
-        .querySelector("#city")
-        .value
-        .trim();
+    const customer = {
 
+      name:
+        document.querySelector(
+          "#customerName"
+        ).value.trim(),
 
-    const phone =
-      document
-        .querySelector("#phone")
-        .value
-        .trim();
+      email:
+        document.querySelector(
+          "#customerEmail"
+        ).value.trim(),
 
+      phone:
+        document.querySelector(
+          "#customerPhone"
+        ).value.trim(),
 
-    const subtotal =
-      cart.reduce(
-        (total, item) => {
+      address:
+        document.querySelector(
+          "#customerAddress"
+        ).value.trim(),
 
-          return (
-            total +
-            Number(item.price) *
-            item.quantity
-          );
-
-        },
-        0
-      );
-
-
-    const shipping =
-      subtotal > 0
-        ? 60
-        : 0;
-
-
-    const total =
-      subtotal + shipping;
-
-
-    /* =========================
-       ORDER DATA
-    ========================= */
-
-    const order = {
-
-      userId:
-        user.uid,
-
-      customer: {
-
-        name:
-          fullName,
-
-        email:
-          user.email,
-
-        address:
-          address,
-
-        city:
-          city,
-
-        phone:
-          phone
-
-      },
-
-
-      items:
-        cart.map((item) => ({
-
-          productId:
-            item.id,
-
-          name:
-            item.name,
-
-          price:
-            Number(item.price),
-
-          quantity:
-            item.quantity,
-
-          image:
-            item.image
-
-        })),
-
-
-      subtotal:
-        subtotal,
-
-      shipping:
-        shipping,
-
-      total:
-        total,
-
-      status:
-        "pending",
-
-      createdAt:
-        serverTimestamp()
+      city:
+        document.querySelector(
+          "#customerCity"
+        ).value.trim()
 
     };
 
@@ -253,63 +238,55 @@ checkoutForm.addEventListener(
         "Placing your order...";
 
 
-      /* =========================
-         SAVE TO FIRESTORE
-      ========================= */
+      await addDoc(
+        collection(db, "orders"),
+        {
 
-      const orderRef =
-        await addDoc(
-          collection(db, "orders"),
-          order
-        );
+          userId:
+            currentUser.uid,
 
+          customer,
 
-      console.log(
-        "Order successfully created:",
-        orderRef.id
+          items: cart,
+
+          total,
+
+          status: "pending",
+
+          createdAt:
+            serverTimestamp()
+
+        }
       );
 
 
-      /* =========================
-         CLEAR CART
-      ========================= */
+      localStorage.removeItem(
+        "urbanThreadsCart"
+      );
 
-      localStorage.removeItem("cart");
-
-
-      /* =========================
-         SUCCESS MESSAGE
-      ========================= */
 
       checkoutMessage.textContent =
-        `Order ${orderRef.id} placed successfully!`;
+        "Order placed successfully!";
 
-
-      checkoutForm.reset();
-
-
-      /* =========================
-         REDIRECT
-      ========================= */
 
       setTimeout(() => {
 
         window.location.href =
           "index.html";
 
-      }, 3000);
+      }, 1500);
 
 
     } catch (error) {
 
       console.error(
-        "Error placing order:",
+        "Order error:",
         error
       );
 
 
       checkoutMessage.textContent =
-        "Something went wrong while placing your order. Please try again.";
+        "Unable to place your order. Please try again.";
 
     }
 
