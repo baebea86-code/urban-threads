@@ -2,7 +2,11 @@ import { auth, db } from "../firebase.js";
 
 import {
   collection,
-  getDocs
+  getDocs,
+  addDoc,
+  deleteDoc,
+  updateDoc,
+  doc
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
 import {
@@ -18,7 +22,7 @@ const ADMIN_EMAIL = "YOUR_EMAIL@example.com";
 
 
 /* =========================
-   DASHBOARD ELEMENTS
+   ELEMENTS
 ========================= */
 
 const productCount =
@@ -33,6 +37,18 @@ const revenue =
 const adminOrders =
   document.querySelector("#adminOrders");
 
+const adminProducts =
+  document.querySelector("#adminProducts");
+
+const productForm =
+  document.querySelector("#productForm");
+
+const productMessage =
+  document.querySelector("#productMessage");
+
+
+let editingProductId = null;
+
 
 /* =========================
    LOAD DASHBOARD
@@ -41,8 +57,6 @@ const adminOrders =
 async function loadDashboard() {
 
   try {
-
-    /* PRODUCTS */
 
     const productsSnapshot =
       await getDocs(
@@ -53,8 +67,6 @@ async function loadDashboard() {
     productCount.textContent =
       productsSnapshot.size;
 
-
-    /* ORDERS */
 
     const ordersSnapshot =
       await getDocs(
@@ -70,11 +82,11 @@ async function loadDashboard() {
 
 
     const orders =
-      ordersSnapshot.docs.map((doc) => ({
+      ordersSnapshot.docs.map((orderDoc) => ({
 
-        id: doc.id,
+        id: orderDoc.id,
 
-        ...doc.data()
+        ...orderDoc.data()
 
       }));
 
@@ -91,7 +103,14 @@ async function loadDashboard() {
       `R${totalRevenue.toFixed(2)}`;
 
 
-    renderOrders(orders);
+    renderProducts(
+      productsSnapshot
+    );
+
+
+    renderOrders(
+      orders
+    );
 
 
   } catch (error) {
@@ -101,22 +120,398 @@ async function loadDashboard() {
       error
     );
 
+  }
 
-    adminOrders.innerHTML = `
+}
+
+
+/* =========================
+   ADD / EDIT PRODUCT
+========================= */
+
+productForm.addEventListener(
+  "submit",
+  async (event) => {
+
+    event.preventDefault();
+
+
+    const name =
+      document
+        .querySelector("#productName")
+        .value
+        .trim();
+
+
+    const price =
+      Number(
+        document
+          .querySelector("#productPrice")
+          .value
+      );
+
+
+    const category =
+      document
+        .querySelector("#productCategory")
+        .value;
+
+
+    const description =
+      document
+        .querySelector("#productDescription")
+        .value
+        .trim();
+
+
+    const image =
+      document
+        .querySelector("#productImage")
+        .value
+        .trim();
+
+
+    const productData = {
+
+      name,
+
+      price,
+
+      category,
+
+      description,
+
+      image
+
+    };
+
+
+    try {
+
+      productMessage.textContent =
+        editingProductId
+          ? "Updating product..."
+          : "Adding product...";
+
+
+      if (editingProductId) {
+
+        await updateDoc(
+          doc(
+            db,
+            "products",
+            editingProductId
+          ),
+          productData
+        );
+
+
+        productMessage.textContent =
+          "Product updated successfully!";
+
+
+        editingProductId = null;
+
+
+        productForm.querySelector(
+          "button[type='submit']"
+        ).textContent =
+          "Add Product";
+
+
+      } else {
+
+        await addDoc(
+          collection(db, "products"),
+          productData
+        );
+
+
+        productMessage.textContent =
+          "Product added successfully!";
+
+      }
+
+
+      productForm.reset();
+
+
+      await loadDashboard();
+
+
+    } catch (error) {
+
+      console.error(
+        "Product save error:",
+        error
+      );
+
+
+      productMessage.textContent =
+        "Unable to save product.";
+
+    }
+
+  }
+);
+
+
+/* =========================
+   RENDER PRODUCTS
+========================= */
+
+function renderProducts(snapshot) {
+
+  if (snapshot.empty) {
+
+    adminProducts.innerHTML = `
 
       <div class="empty-state">
 
         <h2>
-          Unable to load dashboard.
+          No products yet.
         </h2>
-
-        <p>
-          Check your Firestore connection and permissions.
-        </p>
 
       </div>
 
     `;
+
+    return;
+  }
+
+
+  adminProducts.innerHTML =
+    snapshot.docs
+      .map((productDoc) => {
+
+        const product =
+          productDoc.data();
+
+
+        return `
+
+          <article class="product-card">
+
+            <div class="product-image-wrap">
+
+              <img
+                src="${product.image}"
+                alt="${product.name}"
+              >
+
+            </div>
+
+
+            <div class="product-info">
+
+              <span class="product-category">
+                ${product.category}
+              </span>
+
+
+              <h3>
+                ${product.name}
+              </h3>
+
+
+              <p class="product-description">
+                ${product.description}
+              </p>
+
+
+              <div class="product-bottom">
+
+                <strong>
+                  R${Number(product.price).toFixed(2)}
+                </strong>
+
+
+                <div>
+
+                  <button
+                    class="nav-button edit-product"
+                    data-id="${productDoc.id}"
+                  >
+                    Edit
+                  </button>
+
+
+                  <button
+                    class="remove-btn delete-product"
+                    data-id="${productDoc.id}"
+                  >
+                    Delete
+                  </button>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </article>
+
+        `;
+
+      })
+      .join("");
+
+
+  /* EDIT */
+
+  document
+    .querySelectorAll(".edit-product")
+    .forEach((button) => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const product =
+            snapshot.docs.find(
+              (item) =>
+                item.id ===
+                button.dataset.id
+            );
+
+
+          if (!product) {
+            return;
+          }
+
+
+          startEditing(
+            product.id,
+            product.data()
+          );
+
+        }
+      );
+
+    });
+
+
+  /* DELETE */
+
+  document
+    .querySelectorAll(".delete-product")
+    .forEach((button) => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          deleteProduct(
+            button.dataset.id
+          );
+
+        }
+      );
+
+    });
+
+}
+
+
+/* =========================
+   START EDITING
+========================= */
+
+function startEditing(
+  productId,
+  product
+) {
+
+  editingProductId =
+    productId;
+
+
+  document.querySelector(
+    "#productName"
+  ).value =
+    product.name || "";
+
+
+  document.querySelector(
+    "#productPrice"
+  ).value =
+    product.price || "";
+
+
+  document.querySelector(
+    "#productCategory"
+  ).value =
+    product.category || "";
+
+
+  document.querySelector(
+    "#productDescription"
+  ).value =
+    product.description || "";
+
+
+  document.querySelector(
+    "#productImage"
+  ).value =
+    product.image || "";
+
+
+  productForm.querySelector(
+    "button[type='submit']"
+  ).textContent =
+    "Update Product";
+
+
+  productMessage.textContent =
+    "Editing product...";
+
+
+  productForm.scrollIntoView({
+    behavior: "smooth"
+  });
+
+}
+
+
+/* =========================
+   DELETE PRODUCT
+========================= */
+
+async function deleteProduct(
+  productId
+) {
+
+  const confirmed =
+    confirm(
+      "Are you sure you want to delete this product?"
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  try {
+
+    await deleteDoc(
+      doc(
+        db,
+        "products",
+        productId
+      )
+    );
+
+
+    await loadDashboard();
+
+
+  } catch (error) {
+
+    console.error(
+      "Delete product error:",
+      error
+    );
 
   }
 
@@ -127,7 +522,9 @@ async function loadDashboard() {
    RENDER ORDERS
 ========================= */
 
-function renderOrders(orders) {
+function renderOrders(
+  orders
+) {
 
   if (orders.length === 0) {
 
@@ -154,6 +551,11 @@ function renderOrders(orders) {
   adminOrders.innerHTML =
     orders
       .map((order) => {
+
+        const status =
+          order.status ||
+          "pending";
+
 
         return `
 
@@ -188,25 +590,60 @@ function renderOrders(orders) {
             <div class="summary-row">
 
               <strong>
-                Status
-              </strong>
-
-              <span>
-                ${order.status || "pending"}
-              </span>
-
-            </div>
-
-
-            <div class="summary-row total">
-
-              <strong>
                 Total
               </strong>
 
               <strong>
                 R${Number(order.total || 0).toFixed(2)}
               </strong>
+
+            </div>
+
+
+            <div class="summary-row">
+
+              <strong>
+                Status
+              </strong>
+
+
+              <select
+                class="order-status"
+                data-id="${order.id}"
+              >
+
+                <option
+                  value="pending"
+                  ${status === "pending" ? "selected" : ""}
+                >
+                  Pending
+                </option>
+
+
+                <option
+                  value="processing"
+                  ${status === "processing" ? "selected" : ""}
+                >
+                  Processing
+                </option>
+
+
+                <option
+                  value="shipped"
+                  ${status === "shipped" ? "selected" : ""}
+                >
+                  Shipped
+                </option>
+
+
+                <option
+                  value="delivered"
+                  ${status === "delivered" ? "selected" : ""}
+                >
+                  Delivered
+                </option>
+
+              </select>
 
             </div>
 
@@ -217,6 +654,72 @@ function renderOrders(orders) {
       })
       .join("");
 
+
+  /* STATUS CHANGES */
+
+  document
+    .querySelectorAll(".order-status")
+    .forEach((select) => {
+
+      select.addEventListener(
+        "change",
+        () => {
+
+          updateOrderStatus(
+            select.dataset.id,
+            select.value
+          );
+
+        }
+      );
+
+    });
+
+}
+
+
+/* =========================
+   UPDATE ORDER STATUS
+========================= */
+
+async function updateOrderStatus(
+  orderId,
+  newStatus
+) {
+
+  try {
+
+    await updateDoc(
+      doc(
+        db,
+        "orders",
+        orderId
+      ),
+      {
+        status: newStatus
+      }
+    );
+
+
+    console.log(
+      `Order ${orderId} updated to ${newStatus}`
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Order status update error:",
+      error
+    );
+
+
+    alert(
+      "Unable to update order status."
+    );
+
+  }
+
 }
 
 
@@ -224,44 +727,48 @@ function renderOrders(orders) {
    ADMIN AUTHENTICATION
 ========================= */
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(
+  auth,
+  (user) => {
 
-  /* USER IS NOT LOGGED IN */
+    if (!user) {
 
-  if (!user) {
+      alert(
+        "Please log in to access the admin dashboard."
+      );
 
-    alert(
-      "Please log in to access the admin dashboard."
+
+      window.location.href =
+        "login.html";
+
+
+      return;
+
+    }
+
+
+    if (user.email !== ADMIN_EMAIL) {
+
+      alert(
+        "You do not have permission to access the admin dashboard."
+      );
+
+
+      window.location.href =
+        "index.html";
+
+
+      return;
+
+    }
+
+
+    console.log(
+      "Admin access granted."
     );
 
-    window.location.href =
-      "login.html";
 
-    return;
+    loadDashboard();
+
   }
-
-
-  /* USER IS LOGGED IN BUT NOT ADMIN */
-
-  if (user.email !== ADMIN_EMAIL) {
-
-    alert(
-      "You do not have permission to access the admin dashboard."
-    );
-
-    window.location.href =
-      "index.html";
-
-    return;
-  }
-
-
-  /* USER IS ADMIN */
-
-  console.log(
-    "Admin access granted."
-  );
-
-  loadDashboard();
-
-});
+);

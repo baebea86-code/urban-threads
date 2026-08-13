@@ -46,7 +46,9 @@
       </div>
 
 
-      <!-- DASHBOARD STATS -->
+      <!-- =========================
+           DASHBOARD STATS
+      ========================== -->
 
       <div class="category-grid">
 
@@ -92,7 +94,7 @@
         <div class="summary-card">
 
           <span class="product-category">
-            STATUS
+            STORE STATUS
           </span>
 
           <h2>
@@ -104,16 +106,186 @@
       </div>
 
 
-      <!-- ORDERS -->
+      <!-- =========================
+           ADD PRODUCT
+      ========================== -->
 
-      <div class="section-heading" style="margin-top: 4rem;">
+      <div
+        class="section-heading"
+        style="margin-top: 5rem;"
+      >
+
+        <p class="eyebrow">
+          INVENTORY
+        </p>
+
+        <h2>
+          Add a product.
+        </h2>
+
+      </div>
+
+
+      <form
+        id="productForm"
+        class="auth-card"
+      >
+
+        <label>
+
+          Product name
+
+          <input
+            id="productName"
+            type="text"
+            placeholder="Classic Black Hoodie"
+            required
+          >
+
+        </label>
+
+
+        <label>
+
+          Price
+
+          <input
+            id="productPrice"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="699"
+            required
+          >
+
+        </label>
+
+
+        <label>
+
+          Category
+
+          <select
+            id="productCategory"
+            required
+          >
+
+            <option value="">
+              Select category
+            </option>
+
+            <option value="Hoodies">
+              Hoodies
+            </option>
+
+            <option value="T-shirts">
+              T-Shirts
+            </option>
+
+            <option value="Sneakers">
+              Sneakers
+            </option>
+
+            <option value="Accessories">
+              Accessories
+            </option>
+
+          </select>
+
+        </label>
+
+
+        <label>
+
+          Description
+
+          <input
+            id="productDescription"
+            type="text"
+            placeholder="A comfortable everyday hoodie."
+            required
+          >
+
+        </label>
+
+
+        <label>
+
+          Image URL
+
+          <input
+            id="productImage"
+            type="url"
+            placeholder="https://example.com/image.jpg"
+            required
+          >
+
+        </label>
+
+
+        <button
+          type="submit"
+          class="btn full"
+        >
+          Add Product
+        </button>
+
+
+        <p
+          id="productMessage"
+          class="message"
+        ></p>
+
+      </form>
+
+
+      <!-- =========================
+           PRODUCTS
+      ========================== -->
+
+      <div
+        class="section-heading"
+        style="margin-top: 5rem;"
+      >
+
+        <p class="eyebrow">
+          CURRENT INVENTORY
+        </p>
+
+        <h2>
+          Products.
+        </h2>
+
+      </div>
+
+
+      <div
+        id="adminProducts"
+        class="product-grid"
+      >
+
+        <p class="message">
+          Loading products...
+        </p>
+
+      </div>
+
+
+      <!-- =========================
+           ORDERS
+      ========================== -->
+
+      <div
+        class="section-heading"
+        style="margin-top: 5rem;"
+      >
 
         <p class="eyebrow">
           RECENT ACTIVITY
         </p>
 
         <h2>
-          Recent Orders
+          Recent Orders.
         </h2>
 
       </div>
