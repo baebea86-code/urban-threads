@@ -50,6 +50,13 @@ function renderNavbar(user) {
           Cart
         </a>
 
+        <button
+          id="themeToggleBtn"
+          class="theme-toggle"
+          title="Toggle theme"
+        >
+          🌙
+        </button>
 
         ${
           user
@@ -125,6 +132,26 @@ function renderNavbar(user) {
 
   }
 
+  /* =========================
+     THEME TOGGLE
+  ========================= */
+
+  const themeToggleBtn =
+    document.querySelector("#themeToggleBtn");
+
+  if (themeToggleBtn) {
+
+    themeToggleBtn.addEventListener(
+      "click",
+      () => {
+        toggleTheme();
+      }
+    );
+
+    updateThemeIcon();
+
+  }
+
 }
 
 
@@ -169,3 +196,47 @@ onAuthStateChanged(
 
   }
 );
+
+/* =========================
+   THEME MANAGEMENT
+========================= */
+
+function initializeTheme() {
+  const savedTheme = localStorage.getItem("theme") || "light";
+  const html = document.documentElement;
+
+  if (savedTheme === "dark") {
+    html.classList.add("dark-mode");
+  } else {
+    html.classList.remove("dark-mode");
+  }
+
+  updateThemeIcon();
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+
+  if (html.classList.contains("dark-mode")) {
+    html.classList.remove("dark-mode");
+    localStorage.setItem("theme", "light");
+  } else {
+    html.classList.add("dark-mode");
+    localStorage.setItem("theme", "dark");
+  }
+
+  updateThemeIcon();
+}
+
+function updateThemeIcon() {
+  const themeToggleBtn =
+    document.querySelector("#themeToggleBtn");
+
+  if (themeToggleBtn) {
+    const isDarkMode = document.documentElement.classList.contains("dark-mode");
+    themeToggleBtn.textContent = isDarkMode ? "☀️" : "🌙";
+  }
+}
+
+// Initialize theme on page load
+initializeTheme();
