@@ -1,8 +1,14 @@
-import { auth } from "../firebase.js";
+import { auth, db } from "../firebase.js";
 
 import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
+import {
+  collection,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
 
 const checkoutForm =
@@ -20,7 +26,7 @@ let cart =
 
 
 /* =========================
-   PROTECT CHECKOUT
+   CHECK USER
 ========================= */
 
 onAuthStateChanged(auth, (user) => {
@@ -29,8 +35,7 @@ onAuthStateChanged(auth, (user) => {
 
     alert("Please log in to checkout.");
 
-    window.location.href =
-      "login.html";
+    window.location.href = "login.html";
 
     return;
   }
@@ -40,8 +45,7 @@ onAuthStateChanged(auth, (user) => {
 
     alert("Your cart is empty.");
 
-    window.location.href =
-      "shop.html";
+    window.location.href = "shop.html";
 
     return;
   }
@@ -53,7 +57,7 @@ onAuthStateChanged(auth, (user) => {
 
 
 /* =========================
-   CALCULATE TOTAL
+   DISPLAY TOTAL
 ========================= */
 
 function displayTotal() {
@@ -95,9 +99,22 @@ function displayTotal() {
 
 checkoutForm.addEventListener(
   "submit",
-  (event) => {
+  async (event) => {
 
     event.preventDefault();
+
+
+    const user =
+      auth.currentUser;
+
+
+    if (!user) {
+
+      checkoutMessage.textContent =
+        "Please log in before placing your order.";
+
+      return;
+    }
 
 
     if (cart.length === 0) {
@@ -137,15 +154,47 @@ checkoutForm.addEventListener(
         .trim();
 
 
+    const subtotal =
+      cart.reduce(
+        (total, item) => {
+
+          return (
+            total +
+            Number(item.price) *
+            item.quantity
+          );
+
+        },
+        0
+      );
+
+
+    const shipping =
+      subtotal > 0
+        ? 60
+        : 0;
+
+
+    const total =
+      subtotal + shipping;
+
+
+    /* =========================
+       ORDER DATA
+    ========================= */
+
     const order = {
 
-      id:
-        `UT-${Date.now()}`,
+      userId:
+        user.uid,
 
       customer: {
 
         name:
           fullName,
+
+        email:
+          user.email,
 
         address:
           address,
@@ -154,52 +203,115 @@ checkoutForm.addEventListener(
           city,
 
         phone:
-          phone,
-
-        email:
-          auth.currentUser.email
+          phone
 
       },
 
+
       items:
-        cart,
+        cart.map((item) => ({
+
+          productId:
+            item.id,
+
+          name:
+            item.name,
+
+          price:
+            Number(item.price),
+
+          quantity:
+            item.quantity,
+
+          image:
+            item.image
+
+        })),
+
+
+      subtotal:
+        subtotal,
+
+      shipping:
+        shipping,
+
+      total:
+        total,
+
+      status:
+        "pending",
 
       createdAt:
-        new Date().toISOString()
+        serverTimestamp()
 
     };
 
 
-    console.log(
-      "ORDER:",
-      order
-    );
+    try {
+
+      checkoutMessage.textContent =
+        "Placing your order...";
 
 
-    /* CLEAR CART */
+      /* =========================
+         SAVE TO FIRESTORE
+      ========================= */
 
-    localStorage.removeItem(
-      "cart"
-    );
-
-
-    /* CLEAR FORM */
-
-    checkoutForm.reset();
-
-
-    /* SHOW SUCCESS */
-
-    checkoutMessage.textContent =
-      `Order ${order.id} placed successfully!`;
+      const orderRef =
+        await addDoc(
+          collection(db, "orders"),
+          order
+        );
 
 
-    setTimeout(() => {
+      console.log(
+        "Order successfully created:",
+        orderRef.id
+      );
 
-      window.location.href =
-        "index.html";
 
-    }, 2500);
+      /* =========================
+         CLEAR CART
+      ========================= */
+
+      localStorage.removeItem("cart");
+
+
+      /* =========================
+         SUCCESS MESSAGE
+      ========================= */
+
+      checkoutMessage.textContent =
+        `Order ${orderRef.id} placed successfully!`;
+
+
+      checkoutForm.reset();
+
+
+      /* =========================
+         REDIRECT
+      ========================= */
+
+      setTimeout(() => {
+
+        window.location.href =
+          "index.html";
+
+      }, 3000);
+
+
+    } catch (error) {
+
+      console.error(
+        "Error placing order:",
+        error
+      );
+
+
+      checkoutMessage.textContent =
+        "Something went wrong while placing your order. Please try again.";
+
+    }
 
   }
 );

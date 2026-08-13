@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Admin Dashboard | Urban Threads</title>
+
+  <link
+    rel="stylesheet"
+    href="css/style.css"
+  >
+
+</head>
+
+
+<body>
+
+  <header id="navbar"></header>
+
+
+  <main>
+
+    <section class="section">
+
+      <div class="section-heading">
+
+        <p class="eyebrow">
+          URBAN THREADS
+        </p>
+
+        <h1>
+          Admin Dashboard.
+        </h1>
+
+        <p>
+          Manage your Urban Threads store.
+        </p>
+
+      </div>
+
+
+      <!-- DASHBOARD STATS -->
+
+      <div class="category-grid">
+
+        <div class="summary-card">
+
+          <span class="product-category">
+            PRODUCTS
+          </span>
+
+          <h2 id="productCount">
+            0
+          </h2>
+
+        </div>
+
+
+        <div class="summary-card">
+
+          <span class="product-category">
+            ORDERS
+          </span>
+
+          <h2 id="orderCount">
+            0
+          </h2>
+
+        </div>
+
+
+        <div class="summary-card">
+
+          <span class="product-category">
+            REVENUE
+          </span>
+
+          <h2 id="revenue">
+            R0.00
+          </h2>
+
+        </div>
+
+
+        <div class="summary-card">
+
+          <span class="product-category">
+            STATUS
+          </span>
+
+          <h2>
+            Active
+          </h2>
+
+        </div>
+
+      </div>
+
+
+      <!-- ORDERS -->
+
+      <div class="section-heading" style="margin-top: 4rem;">
+
+        <p class="eyebrow">
+          RECENT ACTIVITY
+        </p>
+
+        <h2>
+          Recent Orders
+        </h2>
+
+      </div>
+
+
+      <div
+        id="adminOrders"
+        class="cart-items"
+      >
+
+        <p class="message">
+          Loading orders...
+        </p>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <footer></footer>
+
+
+  <script
+    type="module"
+    src="js/app.js"
+  ></script>
+
+  <script
+    type="module"
+    src="js/admin.js"
+  ></script>
+
+</body>
+
+</html>
